@@ -11,7 +11,7 @@ namespace holidayresort.Controllers
             return View();
         }
 
-        // GET: LandingPage/Details/5
+        // GET: LandingPage/Details/5   
         public ActionResult Details(int id)
         {
             return View();
