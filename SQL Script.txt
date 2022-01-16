@@ -1,0 +1,134 @@
+ create DataBase HotelReservations
+
+ use HotelReservations
+
+
+create table Reservation
+(
+	Id int primary key identity(1,1),
+	Name varchar(50) not null,
+	Surname varchar(50),
+	TelNumber varchar(10),
+	ReservationType varchar(50),
+	StartDate DateTime not null,
+	EndDate DateTime not null,
+)
+
+
+if OBJECT_ID('dbo.sp_reservation_process','P') is not null
+	drop procedure dbo.sp_reservation_process
+go
+
+create procedure dbo.sp_reservation_process
+	@Mode int = 0,
+	@Name varchar(20),
+	@Surname varchar(20),
+	@TelNumber varchar(20),
+	@ReservationType varchar(20),
+	@StartDate DateTime,
+	@EndDate DateTime,
+	@Id int = 0
+with encryption
+as
+begin
+	set nocount on
+	/*
+	Modes:
+	0 : create new reservation record
+	1 : update reservation
+	*/
+
+	begin try
+		
+		begin tran
+			
+			if @Mode = 0
+			begin
+				insert Reservation
+				(Name ,Surname  ,TelNumber, ReservationType, StartDate, EndDate )
+				values
+				(@Name, @Surname, @TelNumber ,@ReservationType ,@StartDate ,@EndDate)
+			end
+			else
+			if @Mode = 1
+			begin
+				update Reservation set
+					[Name] = @Name,
+					[Surname] = @Surname,
+					[ReservationType] = @ReservationType,
+					[StartDate] = @StartDate,
+					[EndDate] = @EndDate
+				where [Id] =@Id 
+			end
+
+		commit tran
+		select 'ok' as Result , '' as Msg
+		return
+	end try 
+
+	begin catch
+		if @@TRANCOUNT > 0
+		rollback tran
+		select 'ERR' as Result, ERROR_MESSAGE() as Msg
+	end catch
+
+end 
+go
+grant exec on dbo.sp_reservation_process to public
+go
+
+
+if object_id('dbo.sp_reservation_data')is not null
+	drop procedure dbo.sp_reservation_data
+go
+
+create procedure dbo.sp_reservation_data
+	@Mode int = 0,
+	@id int  = 0
+with encryption
+as 
+begin
+	set nocount on
+	/*
+	Mode => 0 get a list of reservation
+			 => 1 get Single reservation
+			 => 2 delete reservation 
+	*/ 
+
+	if @Mode = 0
+	begin
+			select * from Reservation
+		return
+	end
+
+	if @Mode = 1
+	begin
+			select * from Reservation
+			where Id  = @id
+		return
+	end
+
+	if @Mode = 2
+	begin
+		begin try
+			begin tran
+				delete Reservation where Id = @id
+				commit
+				select 'ok' as Result ,'' as Msg
+			return
+		end try
+
+		begin catch
+			if @@TRANCOUNT > 0
+			rollback tran
+			select 'ERR' as Result, error_message() as Msg
+		end catch
+
+	end
+end
+go
+
+grant exec on dbo.sp_reservation_data to public
+go 
+	
+			
