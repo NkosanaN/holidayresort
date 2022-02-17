@@ -13,6 +13,10 @@
     {
       "library": "bootstrap-datetimepicker@4.17.47",
       "destination": "wwwroot/bootstrap-datetimepicker/"
+    },
+    {
+      "library": "font-awesome@6.0.0",
+      "destination": "wwwroot/lib/font-awesome/"
     }
   ]
 }
