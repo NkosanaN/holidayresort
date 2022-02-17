@@ -1,13 +1,26 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace holidayresort.Controllers
 {
     public class LandingPage : Controller
     {
+        public SelectList placeGet()
+        {
+            var reservationtypes = new List<string>
+            {
+                "Kosmos",
+                "Mount Amanzi",
+                "SchomasVille"
+            };
+
+            return new SelectList(reservationtypes);
+        }
         // GET: LandingPage
         public ActionResult Index()
         {
+            ViewBag.placeList = placeGet();
             return View();
         }
 
